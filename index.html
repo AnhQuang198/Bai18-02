@@ -1,0 +1,79 @@
+<html>
+
+<head>
+    <meta charset="utf-8" />
+    <style>
+        table,
+        th,
+        td {
+            border: 1px solid black;
+            border-collapse: collapse;
+        }
+    </style>
+</head>
+
+<body>
+    <h1>To do list item</h1>
+    <input id="new-item" type="text" />
+    <button id="add-btn">Add Item</button>
+    <table style="width:30%" id="item-tbl">
+    </table>
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    <script type="text/javascript">
+        var listItem = document.getElementById('item-tbl');
+        var inputItem = document.getElementById('new-item');
+        var addBtn = document.getElementById('add-btn');
+        addBtn.addEventListener('click', addNewItem);
+        var itemLists;
+        async function getData() {
+            await axios.get('http://localhost:3000/todoLists')
+                .then(function (response) {
+                    if (response) {
+                        itemLists = response.data;
+                    } else {
+                        itemLists = [];
+                    }
+                    render(itemLists);
+                })
+        }
+        getData();
+
+        async function addNewItem() {
+            var valueInput = inputItem.value;
+            await axios({
+                method: 'post',
+                url: 'http://localhost:3000/todoLists',
+                data: {
+                    id: ++itemLists.length,
+                    content: valueInput
+                }
+            });
+            getData();
+        }
+
+        async function deleteItem(id) {
+            await itemLists.map(function (element, index) {
+                if (element.id === id) {
+                    itemLists.splice(index, 1);
+                }
+            });
+            await axios({
+                method: 'delete',
+                url: 'http://localhost:3000/todoLists',
+                data: {
+                    todoLists: itemLists
+                }
+            });
+            getData();
+        }
+
+        function render(items) {
+            var content = items.map(function (item) {
+                return '<tr>' + '<td>' + item.id + '</td>' + '<td>' + item.content + '</td>' + '<td><button>Update</button><button>Delete</button></td>' + '</tr>';
+            });
+            listItem.innerHTML = content.join('');
+        }
+    </script>
+</body>
+
+</html>
