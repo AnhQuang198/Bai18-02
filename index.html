@@ -24,6 +24,7 @@
         var inputItem = document.getElementById('new-item');
         var addBtn = document.getElementById('add-btn');
         addBtn.addEventListener('click', addNewItem);
+        listItem.addEventListener('click', onDeleteItem);
         var itemLists;
         async function getData() {
             await axios.get('http://localhost:3000/todoLists')
@@ -51,25 +52,20 @@
             getData();
         }
 
-        async function deleteItem(id) {
-            await itemLists.map(function (element, index) {
+        function onDeleteItem(event) {
+            var id = parseInt(event.target.dataset.id);
+            console.log(id);
+            itemLists.map(function (element, index) {
                 if (element.id === id) {
-                    itemLists.splice(index, 1);
+                    itemLists.splice(element.id, 1);
                 }
             });
-            await axios({
-                method: 'delete',
-                url: 'http://localhost:3000/todoLists',
-                data: {
-                    todoLists: itemLists
-                }
-            });
-            getData();
+            render(itemLists);
         }
 
         function render(items) {
-            var content = items.map(function (item) {
-                return '<tr>' + '<td>' + item.id + '</td>' + '<td>' + item.content + '</td>' + '<td><button>Update</button><button>Delete</button></td>' + '</tr>';
+            var content = items.map(function (item, index) {
+                return '<tr>' + '<td>' + item.id + '</td>' + '<td>' + item.content + '</td>' + '<td><button data-id="' + index + '">Update</button><button data-id="' + index + '">Delete</button></td>' + '</tr>';
             });
             listItem.innerHTML = content.join('');
         }
